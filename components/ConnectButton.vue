@@ -13,7 +13,7 @@ const solAddress = ref<string | null>(null);
 const { publicKey, select,wallet, wallets } = useWallet();
 
 let shortEthAddress = computed(() =>
-  (ethAddress.value && walletType.value == "evm") ? `EVM ${ethAddress.value.slice(0, 6)}...${ethAddress.value.slice(-4)}` : ''
+  (ethAddress.value && walletType.value == "evm") ? `EVM: ${ethAddress.value.slice(0, 6)}...${ethAddress.value.slice(-4)}` : ''
 );
 let shortSolAddress = computed(() =>
   (solAddress.value && walletType.value == "solana") ? `Solana ${solAddress.value.slice(0, 4)}...${solAddress.value.slice(-4)}` : ''
@@ -140,10 +140,10 @@ const selectWallet = async (type: 'evm' | 'solana', walletName: any) => {
   <!-- Connect Wallet Button -->
   <button
     @click="showModal = true"
-    class="bg-[#da342e] hover:bg-[#c42f29] text-white px-5 py-3 rounded-md font-medium flex items-center gap-2 shadow-md transition"
+    class="bg-[#da342e] hover:bg-[#c42f29] text-white px-5 py-3 font-medium flex items-center gap-2 shadow-md transition"
   >
     <Icon icon="mdi:wallet" class="w-5 h-5" />
-    <span>
+    <span style="font-family: 'Expletus Sans', sans-serif;">
       {{ shortEthAddress || shortSolAddress || 'Connect Wallet' }}
     </span>
   </button>
@@ -153,10 +153,10 @@ const selectWallet = async (type: 'evm' | 'solana', walletName: any) => {
     <!-- Semi-transparent white background -->
     <div class="absolute inset-0 backdrop-blur-sm"></div>
 
-    <div class="relative bg-white rounded-lg shadow-lg w-full max-w-md z-10">
+    <div class="relative bg-white shadow-lg w-full max-w-md z-10" style="border: 1px solid #bdbdbd; background: #f3f2ed;">
       <!-- Modal Header -->
       <div class="flex items-center justify-between p-4">
-        <h2 class="text-lg font-semibold">Connect Wallet</h2>
+        <h2 class="text-lg font-semibold" style="font-family: 'Expletus Sans', sans-serif; font-size: 20px;">Connect Wallet</h2>
         <button @click="showModal = false" class="text-gray-500 text-xl hover:text-gray-700">&times;</button>
       </div>
 
@@ -166,10 +166,11 @@ const selectWallet = async (type: 'evm' | 'solana', walletName: any) => {
         <div v-for="wallet in detectedWallets" :key="wallet.name">
           <button
             @click="selectWallet(wallet.type as 'evm'|'solana', wallet.name)"
-            class="flex items-center justify-between w-full px-4 py-2 text-sm  rounded-md hover:bg-gray-100"
+            class="flex items-center justify-between w-full px-4 py-2 text-sm hover:bg-gray-100"
+            style="border: 1px solid rgb(207 207 207); border-radius: 0; padding: 15px 10px; background: rgb(235 234 225);"
           >
-            <span>{{ wallet.name }}</span>
-            <span class="text-green-600 text-xs font-medium">Detected</span>
+            <span style="font-family: 'Expletus Sans', sans-serif;">{{ wallet.name }}</span>
+            <span class="text-green-600 text-xs font-medium" style="font-family: 'Expletus Sans', sans-serif;">Detected</span>
           </button>
         </div>
 
@@ -188,10 +189,11 @@ const selectWallet = async (type: 'evm' | 'solana', walletName: any) => {
           <div v-for="wallet in undetectedWallets" :key="wallet.name">
             <button
               disabled
-              class="flex items-center justify-between w-full px-4 py-2 text-sm rounded-md bg-gray-50 text-gray-400 cursor-not-allowed"
-            >
-              <span>{{ wallet.name }}</span>
-              <span class="text-xs">Not Detected</span>
+              class="flex items-center justify-between w-full px-4 py-2 text-sm bg-gray-50 text-gray-400 cursor-not-allowed"
+              style="border: 1px solid rgb(207 207 207); border-radius: 0; padding: 15px 10px; background: #e9e9e9;"
+              >
+              <span style="font-family: 'Expletus Sans', sans-serif;">{{ wallet.name }}</span>
+              <span style="font-family: 'Expletus Sans', sans-serif;" class="text-xs">Not Detected</span>
             </button>
           </div>
         </div>

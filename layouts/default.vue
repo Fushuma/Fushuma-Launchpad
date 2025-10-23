@@ -25,7 +25,7 @@
                                 :src="fushumaWhite"
                             />
                         </a>
-                        <nav class="hidden md:flex uppercase font-semibold space-x-6">
+                        <nav class="hidden md:flex uppercase font-semibold space-x-6" style="font-family: 'Expletus Sans', sans-serif;">
                             <!-- 🌐 New "Website" Link -->
                             <a
                                 href="https://fushuma.com/"

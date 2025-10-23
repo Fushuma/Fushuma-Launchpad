@@ -74,7 +74,7 @@ export async function fetchAllICOs(): Promise<IIcoInfoWithKey[]> {
       const total = await proxy.counter();
       const results: IIcoInfoWithKey[] = [];
   
-      for (let i = 18; i < Number(total); i++) {
+      for (let i = 26; i < Number(total); i++) {
         const ico = await proxy.getICO(i);
         const { 0: params, 1: state } = ico;
         results.push(mapEvmIcoToIIcoInfo(i, params, state));

@@ -16,7 +16,7 @@
             <div v-else class="container mx-auto px-4 grid-cols-1 md:grid-cols-9 w-full">
                 <div class="md:col-start-2 xl:col-start-3 col-span-7 xl:col-span-5 h-full mx-auto gap-6 mb-3 w-full">
                     <div class="items-center" style="margin: 0 15px;">
-                        <h1 class="main-page-title">Fushuma Launchpads</h1>
+                        <h1 class="main-page-title" style="font-family: 'Expletus Sans', sans-serif;">Fushuma Launchpad</h1>
                         <p>Create your own ICO <a href="/create-ico" style="font-weight: 600;">here</a>.</p>
 
                         
