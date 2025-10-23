@@ -4,10 +4,6 @@
     import { formatDate, formatNumber, IcoStatus } from '~/js/utils';
     import { DataWrapper } from '~/types/DataWrapper';
     import { getTokenSymbol } from '~/js/tokens';
-    import { ethers } from 'ethers';
-    import { getMetaMaskEthereum } from '~/js/ico-evm';
-    import ERC20ABI from '@/abis/ERC20.json';
-
 
     const { icoInfo, status, currentPrice } = defineProps<{
         icoInfo: IIcoInfoWithKey;
@@ -15,12 +11,8 @@
         currentPrice: DataWrapper<number>;
     }>();
 
-    const provider = getMetaMaskEthereum() ? new ethers.BrowserProvider(getMetaMaskEthereum()) : null;
-    const signer = await provider.getSigner();
-    const icoTokenSymbol = await getTokenSymbol(icoInfo.data.icoMint);
-    const paymentTokenAddress = icoInfo?.data?.costMint;
-    const paymentToken = paymentTokenAddress !== "0x0000000000000000000000000000000000000000" ? new ethers.Contract(paymentTokenAddress, ERC20ABI, signer) : null;
-    const paymentDecimals = paymentTokenAddress !== "0x0000000000000000000000000000000000000000" ? Number(await paymentToken?.decimals()) : null;
+    let icoTokenSymbol = await getTokenSymbol(icoInfo.data.icoMint);
+
 
     const soldTokensPercentage = computed(() => {
         return (icoInfo.data.totalSold / icoInfo.data.amount) * 100;
@@ -50,7 +42,7 @@
                     class="text-white text-xl w-4 h-4"
                 />
                 <p v-else class="tracking-tight mt-1 font-medium">
-                    {{ ethers.formatUnits(icoInfo.data.startPrice, paymentDecimals) }}
+                    {{ formatNumber(currentPrice.data, icoInfo.data.icoDecimals.toString().length - 1) }}
                 </p>
             </div>
 

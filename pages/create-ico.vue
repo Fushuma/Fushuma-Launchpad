@@ -58,11 +58,10 @@
           <input v-model="icoForm.startPrice" type="text" class="input" placeholder="e.g. 0.01" className="border border-gray-300 p-2 rounded-md w-full"/>
         </div>
 
-        <!-- <div>
-          <label class="block font-medium">End Price</label>
+        <div>
+          <label class="block font-medium">End Price (0 for fixed)</label>
           <input v-model="icoForm.endPrice" type="text" class="input" placeholder="e.g. 0" className="border border-gray-300 p-2 rounded-md w-full"/>
-          <small class="text-gray-400">Leave "0" for fixed</small>
-        </div> -->
+        </div>
 
         <div>
           <label class="block font-medium">Start Date</label>
@@ -126,7 +125,6 @@
   import { ref, onMounted } from 'vue';
   import LaunchpadABI from '@/abis/Launchpad.json';
   import ERC20ABI from '@/abis/ERC20.json';
-  import { getTokenDecimals } from '~/js/tokens';
   import { proxyAddress, getMetaMaskEthereum } from '~/js/ico-evm';
   import { ethers } from 'ethers';
   import { useRouter } from 'vue-router'
@@ -147,7 +145,7 @@
     endPrice: '0',
     startDate: inOneHour,
     endDate: '',
-    bonusReserve: '0',
+    bonusReserve: '',
     bonusPercentage: 2500,
     bonusActivator: 1000,
     unlockPercentage: 5000,
@@ -172,10 +170,7 @@
       const signer = await provider.getSigner();
       const token = new ethers.Contract(icoForm.value.token, ERC20ABI, signer);
       const total = web3.utils.toWei((Number(icoForm.value.amount) + Number(icoForm.value.bonusReserve)).toString(), 'ether');
-      const allowance = await token.allowance(signer.address, proxyAddress);
-      if (allowance >= total) {
-        return;
-      }
+
       const tx = await token.approve(proxyAddress, total);
       const result = await tx.wait();
       if (result) {
@@ -249,6 +244,7 @@
 
       if(!ethAddress.value) return
       const provider = new ethers.BrowserProvider(getMetaMaskEthereum());
+      console.log(provider);
       await provider.send("eth_requestAccounts", []); // prompts MetaMask connect
       const signer = await provider.getSigner();
 
@@ -256,21 +252,15 @@
       await approveToken();
       const creationFee = await proxyAsLaunchpad.creationFee();
 
-      const icoTokenDecimals = await getTokenDecimals(icoForm.value.token);
-      const decimalspayment = getResolvedPaymentToken() !== "0x0000000000000000000000000000000000000000" ?
-        await getTokenDecimals(getResolvedPaymentToken()) : 18; // native token has 18 decimals
-      const startPriceFormatted = ethers.parseUnits(icoForm.value.startPrice, decimalspayment);
-      const endPriceFormatted = ethers.parseUnits(icoForm.value.endPrice, decimalspayment);
-
       const icoParams = {
         token: icoForm.value.token,
         paymentToken: getResolvedPaymentToken(),
-        amount: (ethers.parseUnits(icoForm.value.amount, icoTokenDecimals)).toString(),
-        startPrice: startPriceFormatted,
-        endPrice: endPriceFormatted,
+        amount: (web3.utils.toWei(icoForm.value.amount, 'ether')),
+        startPrice: (web3.utils.toWei(icoForm.value.startPrice, 'ether')),
+        endPrice: (web3.utils.toWei(icoForm.value.endPrice, 'ether')),
         startDate: Math.floor(new Date(icoForm.value.startDate).getTime() / 1000),
         endDate: icoForm.value.endDate ? Math.floor(new Date(icoForm.value.endDate).getTime() / 1000) : 0,
-        bonusReserve: icoForm.value.bonusReserve ? (ethers.parseUnits(icoForm.value.bonusReserve, icoTokenDecimals)).toString() : "0",
+        bonusReserve: (web3.utils.toWei(icoForm.value.bonusReserve, 'ether')),
         bonusPercentage: +icoForm.value.bonusPercentage,
         bonusActivator: +icoForm.value.bonusActivator,
         vestingParams: {

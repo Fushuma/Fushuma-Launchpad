@@ -7,9 +7,6 @@
     import { getTokenSymbol } from '~/js/tokens';
     import FushumaLogo from '@/assets/img/fushuma-avatar.png';
     import DPCLogo from '@/assets/img/DPC.png';
-    import { ethers } from 'ethers';
-    import { getMetaMaskEthereum } from '~/js/ico-evm';
-    import ERC20ABI from '@/abis/ERC20.json';
 
     const props = defineProps<{
         data: IIcoInfoWithKey;
@@ -31,12 +28,7 @@
     });
 
     let icoTokenName = await getTokenSymbol(props.data.data.icoMint);
-    const provider = getMetaMaskEthereum() ? new ethers.BrowserProvider(getMetaMaskEthereum()) : null;
-    const signer = await provider.getSigner();
-    const paymentTokenAddress = props.data?.data?.costMint;
-    const paymentToken = paymentTokenAddress !== "0x0000000000000000000000000000000000000000" ? new ethers.Contract(paymentTokenAddress, ERC20ABI, signer) : null;
-    let paymentTokenName = props.data.data.costMint === "0x0000000000000000000000000000000000000000" ? "FUMA" : await paymentToken?.symbol();
-    const paymentDecimals = paymentTokenAddress !== "0x0000000000000000000000000000000000000000" ? Number(await paymentToken?.decimals()) : null;
+    let paymentTokenName = props.data.data.costMint === "0x0000000000000000000000000000000000000000" ? "FUMA" : await getTokenSymbol(props.data.data.costMint);
 
     onMounted(() => {
         const l = launchpads.find((p) => p.key === props.data.key);
@@ -144,8 +136,7 @@
         const decimalPlaces = icoDecimals.toString().length - 1;
 
         return endPrice === 0
-            ? ethers.formatUnits(props.data.data.startPrice, paymentDecimals)
-
+            ? formatNumber(startPrice / icoDecimals, decimalPlaces)
             : `${formatNumber(startPrice / icoDecimals, decimalPlaces)} - ${formatNumber(endPrice / icoDecimals, decimalPlaces)}`;
     });
 
