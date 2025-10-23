@@ -33,7 +33,7 @@
         status: IcoStatus;
         currentPrice: DataWrapper<number>;
     }>();
-    
+
     let icoTokenSymbol = await getTokenSymbol(icoInfo.data.icoMint);
     let paymentTokenSymbol = icoInfo.data.costMint === "0x0000000000000000000000000000000000000000" ? "FUMA" : await getTokenSymbol(icoInfo.data.costMint);
 
@@ -55,18 +55,6 @@
         value: 0,
         availableAmount: 0,
     });
-
-    const signer = await provider.getSigner();
-
-    // Payment token
-    const paymentTokenAddress = icoInfo?.data?.costMint;
-    const paymentToken = paymentTokenAddress !== "0x0000000000000000000000000000000000000000" ? new ethers.Contract(paymentTokenAddress, ERC20ABI, signer) : null;
-    const paymentDecimals = paymentTokenAddress !== "0x0000000000000000000000000000000000000000" ? Number(await paymentToken?.decimals()) : null;
-
-    // ICO token
-    const icoTokenAddress = icoInfo?.data?.icoMint;
-    const icoToken = new ethers.Contract(icoTokenAddress, ERC20ABI, signer);
-    const icoDecimals = Number(await icoToken.decimals());
 
     const minTokenAmount = computed(() => {
         if (!icoInfo.data) return 0.01;
@@ -106,7 +94,6 @@
                 if (evmMemo) {
                     const id = icoPot.split("-")[1];
                     const decimals = BigInt(icoInfo.data!.icoDecimals);
-                    console.log(tokensAmount);
                     const amount = BigInt(tokensAmount) * decimals;
                     const p = await getEvmCostInfo(Number(id), amount);
 
@@ -150,22 +137,15 @@
 
     watch(purchaseAmount, () => getPrice(purchaseAmount.value), { immediate: true });
 
-    // The information is taken from payment token amount but it converts it as if it was 18 decimals
-    // This should be fixed to take into account the real decimals of the payment token
-
     watch(
         purchasePrice,
-        async () => {
+        () => {
             if (purchasePrice.value && currentPrice.data) {
                 const totalPriceDecimals = purchasePrice.value;
 
-                if(Number(icoInfo.data?.endPrice) == 0 && paymentDecimals) {
-                    const tokensAmount = Math.round(totalPriceDecimals * 10**paymentDecimals / currentPrice.data);
-                    price.value.availableAmount = tokensAmount / 10**icoDecimals;
-                    price.value.value = purchasePrice.value;
-                } else if(Number(icoInfo.data?.endPrice) == 0 && !paymentDecimals) {
-                    const tokensAmount = Math.round(totalPriceDecimals * 10**18 / currentPrice.data);
-                    price.value.availableAmount = tokensAmount / 10**icoDecimals;
+                if(Number(icoInfo.data?.endPrice) == 0) {
+                    const tokensAmount = Math.round(totalPriceDecimals / currentPrice.data);
+                    price.value.availableAmount = tokensAmount;
                     price.value.value = purchasePrice.value;
                 } else {
                     const startPrice = currentPrice.data;
@@ -256,19 +236,16 @@
 
                         console.log("Transaction hash is", tx.hash);
                     } else {
-                        // Should track where the available amount value comes from to correct it
-                        // The information it gives is wrong, it should be reviewed
+                        const tokenAddress = icoInfo?.data?.costMint;
+                        const token = new ethers.Contract(tokenAddress, ERC20ABI, signer);
 
                         const amountToBuy = evmWeb3.utils.toWei(price.value.availableAmount, 'ether');
                         const { availableAmount, value: amountToPay } = await proxyAsLaunchpad.getValue(id, amountToBuy);
 
-                        const allowance = await paymentToken.allowance(await signer.getAddress(), proxyAddress);
+                        console.log("availableAmount->", availableAmount);
+                        console.log("amountToPay->", amountToPay);
 
-                        let approveTx;
-                        if (allowance < amountToPay) {
-                            approveTx = await paymentToken.approve(proxyAddress, amountToPay);
-                        }
-
+                        const approveTx = await token.approve(proxyAddress, amountToPay);
                         const { startDate, endDate } = await proxyAsLaunchpad.icoParams(id);
                         const { isClosed } = await proxyAsLaunchpad.icoState(id);
                         const now = Math.floor(Date.now() / 1000); // current timestamp
@@ -283,12 +260,12 @@
                             console.error('ICO is closed');
                         }
 
-                        if((approveTx && await approveTx.wait()) || !approveTx) {
+                        if(await approveTx.wait()) {
                             // Send transaction with overrides
                             const tx = await proxyAsLaunchpad.buyToken(
                                 id,
                                 amountToBuy,
-                                signer.getAddress()
+                                signer
                             );
                             console.log("Transaction hash is", tx.hash);
                         }
@@ -459,6 +436,7 @@
                     :step="0.01"
                     :min="0"
                     class="w-full" 
+                    type="number" 
                     placeholder="0"
                     v-model="purchasePrice">
                         <template #decrement>

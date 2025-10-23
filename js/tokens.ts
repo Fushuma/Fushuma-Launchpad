@@ -1,5 +1,4 @@
 import { ethers, JsonRpcProvider } from "ethers";
-import ERC20_ABI from "@/abis/ERC20.json";
 
 export const TokenAddress = new Map<string, string>([
     ['So11111111111111111111111111111111111111112', 'wSOL'],
@@ -16,6 +15,10 @@ export const convertTokenIfAvailableWithFormatting = (token: string) => {
 };
 
 export const getTokenSymbol = async(token: string) => {
+    const ERC20_ABI = [
+        "function symbol() view returns (string)"
+    ];
+
     const provider = new JsonRpcProvider("https://rpc.fushuma.com");
 
     try {
@@ -24,17 +27,5 @@ export const getTokenSymbol = async(token: string) => {
         return name;
     } catch (error) {
         return "Unknown";
-    }
-}
-
-export const getTokenDecimals = async(token: string) => {
-    const provider = new JsonRpcProvider("https://rpc.fushuma.com");
-
-    try {
-        const contract = new ethers.Contract(token, ERC20_ABI, provider);
-        const decimals = await contract.decimals();
-        return Number(decimals);
-    } catch (error) {
-        return 0;
     }
 }
