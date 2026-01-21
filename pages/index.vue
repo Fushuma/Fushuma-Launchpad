@@ -90,7 +90,7 @@
     const fetchData = async () => {
         try {
             const evmIcos = await fetchAllICOs();
-            const ignoredIcos = [26];
+            const ignoredIcos = [26, 27, 29];
             const filteredIcos = evmIcos.filter((ico: any) => !ignoredIcos.includes(ico.data.seed));
 
             // const solanaIcos = await SolanaIcoLaunchpad.getAllIco({});
@@ -114,8 +114,8 @@
             });
 
             livelaunchpads.sort((a, b) => {
-                if (a.data.seed === 27 && b.data.seed !== 27) return -1;
-                if (b.data.seed === 27 && a.data.seed !== 27) return 1;
+                if (a.data.seed === 30 && b.data.seed !== 30) return -1;
+                if (b.data.seed === 30 && a.data.seed !== 30) return 1;
 
                 if (a.data.seed === 28 && b.data.seed !== 28) return -1;
                 if (b.data.seed === 28 && a.data.seed !== 28) return 1;

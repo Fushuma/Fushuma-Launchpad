@@ -160,7 +160,7 @@
     const fetchName = () => {
         // Solana launchpads are not included
         let launchpad: any = combinedData.value.data;
-        if (launchpad.seed === 27) {
+        if (launchpad.seed === 30) {
             return 'FUSHUMA';
         } else if (launchpad.seed === 28) {
             return 'DON PABLO';
@@ -172,7 +172,7 @@
     const fetchLogo = () => {
         // Solana launchpads are not included
         let launchpad: any = combinedData.value.data;
-        if (launchpad.seed === 27) {
+        if (launchpad.seed === 30) {
             return FushumaLogo;
         } else if (launchpad.seed === 28) {
             return DPCLogo;
@@ -193,7 +193,7 @@
                     <div
                         v-if="
                             combinedData.launchpad?.projectLogo ||
-                            combinedData.data.seed == 27 ||
+                            combinedData.data.seed == 30 ||
                             combinedData.data.seed == 28" 
                         class="mr-3"
                     >
